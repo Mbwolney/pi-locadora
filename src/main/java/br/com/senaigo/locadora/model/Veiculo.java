@@ -138,7 +138,7 @@ public class Veiculo extends PersisteDados {
 			String campoAnoFabricacao = RegexUtils.separeComoCampo(String.valueOf(anoFabricacao));
 			String campoValorCompra = RegexUtils.separeComoCampo(String.valueOf(this.valorCompra));
 			String campoKmAtual = RegexUtils.separeComoCampo(String.valueOf(this.kmAtual));
-			String campoCategoria = this.categoria.getId() == 0 ? RegexUtils.separeComoAgregacao(categoria.desmonteObjeto()) : RegexUtils.separeComoAgregacao(categoria.getIdComoString());
+			String campoCategoria = RegexUtils.separeComoAgregacao(this.categoria.desmonteObjeto());
 			String campoEstado = RegexUtils.separeComoCampo(String.valueOf(this.estado.getValor()));
 			String campoModelo = RegexUtils.separeComoAgregacao(this.modelo.desmonteObjeto());
 

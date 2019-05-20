@@ -14,7 +14,7 @@ public class RegexUtils {
 	private static final String SEPARADOR_FIM_AGREGACAO = "}";
 	private static final String SEPARADOR_CAMPOS = ";";
 	private static final String REGEX_OPERACAO = "(?<=#)\\d+(?=#)";
-	private static final String REGEX_AGREGACAO = "(?<=\\{).*?(?=\\})";
+	private static final String REGEX_AGREGACAO = "(?<=\\{).*?(?=;\\{|\\})";
 	private static final String REGEX_DADOS_OBJETO_COM_AGREGACAO = "#\\d+#";
 	private static final String REGEX_DADOS_OBJETO_SEM_AGREGACAO = "#\\d+#|\\{.*?\\}";
 	private static final String REGEX_NOME_ENTIDADE = "^\\w+";

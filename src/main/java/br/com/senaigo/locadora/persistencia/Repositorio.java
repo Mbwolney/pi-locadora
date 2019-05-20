@@ -3,6 +3,7 @@ package br.com.senaigo.locadora.persistencia;
 import br.com.senaigo.locadora.interfaces.PersisteDados;
 import br.com.senaigo.locadora.model.PersisteDadosFactory;
 import br.com.senaigo.locadora.utils.RegexUtils;
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 
 import java.io.*;
 import java.util.List;
@@ -28,18 +29,13 @@ public class Repositorio {
 		String dadosObjetoPrincipal = objeto.desmonteObjeto();
 		List<String> dadosAgregacoes = RegexUtils.extraiaAgregacoes(dadosObjetoPrincipal);
 		for(String dadoObjeto : dadosAgregacoes) {
-			String nomeEntidadeAgregada = RegexUtils.extraiaNomeEntidade(dadoObjeto);
 			int id = RegexUtils.extraiaId(dadoObjeto);
-			if(id != 0) {
-				String dadoEncontrado = busquePorId(nomeEntidadeAgregada, id);
-
+			if(id == 0) {//incluir se for uma nova instância
+				int idGerada = escrevaDadoEmArquivo(dadoObjeto, false);
+				String nomeEntidade = RegexUtils.extraiaNomeEntidade(dadoObjeto);
+				dadosObjetoPrincipal = dadosObjetoPrincipal.replace(dadoObjeto, RegexUtils.separeComoCampo(nomeEntidade) + idGerada);
 			}
-
-			int idGerada = escrevaDadoEmArquivo(dadoObjeto, false);
-			String nomeEntidade = RegexUtils.extraiaNomeEntidade(dadoObjeto);
-			dadosObjetoPrincipal = dadosObjetoPrincipal.replace(dadoObjeto, RegexUtils.separeComoCampo(nomeEntidade) + idGerada);
 		}
-
 		return escrevaDadoEmArquivo(dadosObjetoPrincipal, true);
 	}
 
@@ -107,7 +103,7 @@ public class Repositorio {
 	public String busquePorId(String nomeEntidadeAgregada, int id) throws IOException {
 		String dadosNoRepositorio = listar(nomeEntidadeAgregada);
 		String dadosObjetoNoRepositorio = RegexUtils.extraiaPorId(dadosNoRepositorio, id);
-		return dadosObjetoNoRepositorio;
+		return RegexUtils.separeComoCampo(nomeEntidadeAgregada) + dadosObjetoNoRepositorio;
 	}
 
 }

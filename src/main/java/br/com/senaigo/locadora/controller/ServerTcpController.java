@@ -9,6 +9,7 @@ import br.com.senaigo.locadora.utils.RegexUtils;
 import br.com.senaigo.locadora.utils.Utils;
 
 import java.io.IOException;
+import java.util.List;
 
 public class ServerTcpController {
 
@@ -50,12 +51,15 @@ public class ServerTcpController {
 		String dadosObjeto = mensagem.getDadosObjetoPrincipal();
 		PersisteDados objeto = PersisteDadosFactory.obtenhaInstancia(nomeEntidade);
 		//Os dados não podem passar daqui sem tratamento
-		int id = RegexUtils.extraiaId(dadosObjeto);
-		if(id != 0) {
-			String dadosEncontrados = repositorio.busquePorId(nomeEntidade, id);
-			dadosObjeto = dadosEncontrados;
+		List<String> dadosObjetosAgregados = mensagem.getDadosObjetosAgregados();
+		for(String dado : dadosObjetosAgregados) {
+			int id = RegexUtils.extraiaId(dado);
+			if(id != 0) {
+				String nomeEntidadeAgregada = RegexUtils.extraiaNomeEntidade(dado);
+				String dadosEncontrados = repositorio.busquePorId(nomeEntidadeAgregada, id);
+				dadosObjeto = dadosObjeto.replace(dado, dadosEncontrados);
+			}
 		}
-
 		objeto.monteObjeto(dadosObjeto);
 		repositorio.incluir(objeto);
 		return nomeEntidade + " incluído com sucesso.";

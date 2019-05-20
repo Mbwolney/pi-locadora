@@ -52,9 +52,13 @@ public class MainTestesMensagem {
 			controller.execute(marca, Operacao.INCLUIR);
 			marca.setId(1);
 			modelo.setNome("Gol que serã salvo com o veículo");
+			modelo.setMarca(marca);
 			controller.execute(modelo, Operacao.INCLUIR);
 			modelo.setId(2);
-			modelo.setMarca(marca);
+			categoria.setNome("Categoria veículo teste");
+			controller.execute(categoria, Operacao.INCLUIR);
+			categoria.setId(3);
+			veiculo.setCategoria(categoria);
 			veiculo.setModelo(modelo);
 			controller.execute(veiculo, Operacao.INCLUIR);
 

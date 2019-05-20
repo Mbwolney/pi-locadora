@@ -12,8 +12,10 @@ public class Mensagem {
 	private String nomeEntidade;
 	private String dadosObjetoPrincipal;
 	private List<String> dadosObjetosAgregados;
+	private String requisicaoOriginal;
 
 	public Mensagem(String requisicao) {
+		this.requisicaoOriginal = requisicao;
 		this.operacao = RegexUtils.extraiaOperacao(requisicao);
 		this.nomeEntidade = RegexUtils.extraiaNomeEntidade(requisicao);
 		if(operacao != Operacao.LISTAR.getValor()) {
@@ -32,6 +34,14 @@ public class Mensagem {
 
 	public String getDadosObjetoPrincipal() {
 		return dadosObjetoPrincipal;
+	}
+
+	public List<String> getDadosObjetosAgregados() {
+		return dadosObjetosAgregados;
+	}
+
+	public void setDadosObjetosAgregados(List<String> dadosObjetosAgregados) {
+		this.dadosObjetosAgregados = dadosObjetosAgregados;
 	}
 
 	private List<String> obtenhaObjetosAgregados(String requisicao) {
