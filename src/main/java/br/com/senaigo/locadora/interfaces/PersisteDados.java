@@ -23,10 +23,14 @@ public abstract class PersisteDados {
         this.id = id;
     }
 
+    public String getIdComoString() {
+    	return String.valueOf(this.id);
+	}
+
     //Métodos
     public abstract void monteObjeto(String dadosDoObjeto);
 
-    public abstract String desmonteObjeto(boolean comParametro);
+    public abstract String desmonteObjeto();
 
     protected String obtenhaParametros() {
         StringBuilder parametros = new StringBuilder();

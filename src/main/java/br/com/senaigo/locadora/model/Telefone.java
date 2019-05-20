@@ -1,6 +1,7 @@
 package br.com.senaigo.locadora.model;
 
 import br.com.senaigo.locadora.interfaces.PersisteDados;
+import br.com.senaigo.locadora.utils.RegexUtils;
 import br.com.senaigo.locadora.utils.Utils;
 
 import java.util.List;
@@ -66,23 +67,29 @@ public class Telefone extends PersisteDados {
     //Métodos Herdados
     @Override
     public void monteObjeto(String dadosDoObjeto) {
-        List<String> campos = Utils.obtenhaCampos(dadosDoObjeto);
+		String dadosPropriosDesteObjeto = RegexUtils.removaAgregacoes(dadosDoObjeto);
+		dadosPropriosDesteObjeto = RegexUtils.removaNomeEntidade(dadosPropriosDesteObjeto);
+		List<String> campos = Utils.obtenhaCampos(dadosPropriosDesteObjeto);
 
-        this.ddd = Utils.convertaParaInt(campos.get(0));
-        this.numero = Utils.convertaParaInt(campos.get(1));
+        this.id = Utils.convertaParaInt(campos.get(0));
+		this.ddd = Utils.convertaParaInt(campos.get(1));
+        this.numero = Utils.convertaParaInt(campos.get(2));
     }
 
     @Override
-    public String desmonteObjeto(boolean comParametro) {
-        StringBuilder dadosSeparadosPorPontoVirgula = new StringBuilder();
+    public String desmonteObjeto() {
+        StringBuilder atributos = new StringBuilder();
 
-        if(comParametro) {
-            dadosSeparadosPorPontoVirgula.append(obtenhaParametros());
-        }
+		String nomeEntidade = RegexUtils.separeComoCampo(this.getClass().getSimpleName());
+		String campoId = RegexUtils.separeComoCampo(this.getIdComoString());
+        String campoDdd = RegexUtils.separeComoCampo(String.valueOf(this.ddd));
+        String campoNumero = RegexUtils.separeComoCampo(String.valueOf(this.numero));
 
-        dadosSeparadosPorPontoVirgula.append(this.ddd).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.numero);
+        atributos.append(nomeEntidade);
+        atributos.append(campoId);
+        atributos.append(campoDdd);
+        atributos.append(campoNumero);
 
-        return dadosSeparadosPorPontoVirgula.toString();
+        return atributos.toString();
     }
 }

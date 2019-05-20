@@ -5,15 +5,14 @@
  */
 package br.com.senaigo.locadora.view;
 
-import br.com.senaigo.locadora.interfaces.PersisteDados;
 import br.com.senaigo.locadora.model.Cliente;
 import br.com.senaigo.locadora.model.Endereco;
 import br.com.senaigo.locadora.model.PersisteDadosFactory;
 import br.com.senaigo.locadora.model.Telefone;
+import br.com.senaigo.locadora.utils.DataUtils;
 
 import javax.swing.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 /**
  *
@@ -616,8 +615,7 @@ public class TelaPessoaFisica extends javax.swing.JInternalFrame {
             Cliente cliente = (Cliente) PersisteDadosFactory.obtenhaInstancia("Cliente");
             cliente.setNome(nome);
             cliente.setCpf(cpf);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
-            LocalDate data = LocalDate.parse(dataNascimento, formatter);
+            LocalDate data = DataUtils.convertaStringParaLocalDate(dataNascimento);
             cliente.setDataNascimento(data);
             Endereco endereco = (Endereco) PersisteDadosFactory.obtenhaInstancia("Endereco");
             endereco.setLogradouro(logradouro);
@@ -632,7 +630,7 @@ public class TelaPessoaFisica extends javax.swing.JInternalFrame {
             cliente.setTelefoneAlternativo(telefoneAlternativoObjeto);
             cliente.setEmail(email);
 
-            String dados = cliente.desmonteObjeto(true);
+            String dados = cliente.desmonteObjeto();
             System.out.println(dados);
 
 

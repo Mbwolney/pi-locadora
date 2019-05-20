@@ -1,6 +1,10 @@
 package br.com.senaigo.locadora.model;
 
 import br.com.senaigo.locadora.interfaces.PersisteDados;
+import br.com.senaigo.locadora.utils.RegexUtils;
+import br.com.senaigo.locadora.utils.Utils;
+
+import java.util.List;
 
 public class Categoria extends PersisteDados {
 
@@ -37,11 +41,32 @@ public class Categoria extends PersisteDados {
     //Métodos Herdados    
     @Override
     public void monteObjeto(String dadosDoObjeto) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+		String dadosPropriosDesteObjeto = RegexUtils.removaAgregacoes(dadosDoObjeto);
+		dadosPropriosDesteObjeto = RegexUtils.removaNomeEntidade(dadosPropriosDesteObjeto);
+		List<String> campos = Utils.obtenhaCampos(dadosPropriosDesteObjeto);
+		List<String> agregacoes = RegexUtils.extraiaAgregacoes(dadosDoObjeto);
+
+		this.id = Utils.convertaParaInt(campos.get(0));
+		this.nome = campos.get(1);
+		this.valorDiarioLocacao = Utils.convertaParaFloat(campos.get(2));
     }
 
     @Override
-    public String desmonteObjeto(boolean comParametro) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }    
+    public String desmonteObjeto() {
+		StringBuilder atributos = new StringBuilder();
+
+		String nomeEntidade = RegexUtils.separeComoCampo(this.getClass().getSimpleName());
+		String campoId = RegexUtils.separeComoCampo(this.getIdComoString());
+		atributos.append(nomeEntidade);
+		atributos.append(campoId);
+
+		if(this.id == 0) {
+			String campoNome = RegexUtils.separeComoCampo(this.nome);
+			String campoValorLocacao = RegexUtils.separeComoCampo(String.valueOf(this.valorDiarioLocacao));
+			atributos.append(campoNome);
+			atributos.append(campoValorLocacao);
+		}
+
+		return atributos.toString();
+    }
 }

@@ -14,8 +14,12 @@ public class GeradorId {
 
 	//Construtores
 	public GeradorId() throws IOException {
-		//Precisa criar o arquivo no diretório e colocar 0 na primeira vez que rodar senão dá exceção
-		//TODO Verificar uma forma para que caso o arquivo não exista, seja criado e inicializado com 0
+
+		File file = new File(caminhoArquivoId);
+		if(!file.exists()) {
+			file.createNewFile();
+		}
+
 		FileReader leitorArquivo = new FileReader(caminhoArquivoId);
 		BufferedReader leitorTexto = new BufferedReader(leitorArquivo);
 		String linha = leitorTexto.readLine();
@@ -29,6 +33,9 @@ public class GeradorId {
 	}
 
 	public void finalize() throws IOException {
+
+
+
 		FileWriter escritorArquivo = new FileWriter(caminhoArquivoId, false);
 		BufferedWriter escritorTexto = new BufferedWriter(escritorArquivo);
 

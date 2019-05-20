@@ -385,7 +385,7 @@ public class TelaModelo extends javax.swing.JInternalFrame {
             //Verificar se o campo id está preenchido. Se tiver, chamar o método que irá salvar
             String nome = jTextFieldNome.getText();
             String id = jTextFieldID.getText();
-            Modelo modelo = new Modelo();
+            Modelo modelo = new Modelo(null);
 
             modelo.setNome(nome);
 

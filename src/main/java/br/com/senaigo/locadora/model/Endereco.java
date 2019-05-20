@@ -1,6 +1,7 @@
 package br.com.senaigo.locadora.model;
 
 import br.com.senaigo.locadora.interfaces.PersisteDados;
+import br.com.senaigo.locadora.utils.RegexUtils;
 import br.com.senaigo.locadora.utils.Utils;
 
 import java.util.List;
@@ -70,29 +71,38 @@ public class Endereco extends PersisteDados {
     //Métodos herdados
     @Override
     public void monteObjeto(String dadosDoObjeto) {
-        List<String> campos = Utils.obtenhaCampos(dadosDoObjeto);
+		String dadosPropriosDesteObjeto = RegexUtils.removaAgregacoes(dadosDoObjeto);
+		dadosPropriosDesteObjeto = RegexUtils.removaNomeEntidade(dadosPropriosDesteObjeto);
+		List<String> campos = Utils.obtenhaCampos(dadosPropriosDesteObjeto);
 
-        this.logradouro = campos.get(0);
-        this.numero = campos.get(1);
-        this.complemento = campos.get(2);
-        this.bairro = campos.get(3);
-        this.cep = campos.get(4);
+		this.id = Utils.convertaParaInt(campos.get(0));
+        this.logradouro = campos.get(1);
+        this.numero = campos.get(2);
+        this.complemento = campos.get(3);
+        this.bairro = campos.get(4);
+        this.cep = campos.get(5);
     }
 
     @Override
-    public String desmonteObjeto(boolean comParametro) {
-        StringBuilder dadosSeparadosPorPontoVirgula = new StringBuilder();
+    public String desmonteObjeto() {
+		StringBuilder atributos = new StringBuilder();
 
-        if(comParametro) {
-            dadosSeparadosPorPontoVirgula.append(obtenhaParametros());
-        }
+		String nomeEntidade = RegexUtils.separeComoCampo(this.getClass().getSimpleName());
+		String campoId = RegexUtils.separeComoCampo(this.getIdComoString());
+		String campoLogradouro = RegexUtils.separeComoCampo(this.logradouro);
+		String campoNumero = RegexUtils.separeComoCampo(this.numero);
+		String campoComplemento = RegexUtils.separeComoCampo(this.complemento);
+		String campoBairro = RegexUtils.separeComoCampo(this.bairro);
+		String campoCep = RegexUtils.separeComoCampo(this.cep);
 
-        dadosSeparadosPorPontoVirgula.append(this.logradouro).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.numero).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.complemento).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.bairro).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.cep);
+		atributos.append(nomeEntidade);
+		atributos.append(campoId);
+		atributos.append(campoLogradouro);
+		atributos.append(campoNumero);
+		atributos.append(campoComplemento);
+		atributos.append(campoBairro);
+		atributos.append(campoCep);
 
-        return dadosSeparadosPorPontoVirgula.toString();
+		return atributos.toString();
     }
 }

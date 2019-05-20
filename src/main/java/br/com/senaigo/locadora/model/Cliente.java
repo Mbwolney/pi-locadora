@@ -1,10 +1,11 @@
 package br.com.senaigo.locadora.model;
 
 import br.com.senaigo.locadora.interfaces.PersisteDados;
+import br.com.senaigo.locadora.utils.RegexUtils;
+import br.com.senaigo.locadora.utils.DataUtils;
 import br.com.senaigo.locadora.utils.Utils;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 public class Cliente extends PersisteDados {
@@ -123,50 +124,62 @@ public class Cliente extends PersisteDados {
     //Métodos herdados
     @Override
     public void monteObjeto(String dadosDoObjeto) {
-        List<String> campos = Utils.obtenhaCampos(dadosDoObjeto);
+    	String dadosPropriosDesteObjeto = RegexUtils.removaAgregacoes(dadosDoObjeto);
+    	dadosPropriosDesteObjeto = RegexUtils.removaNomeEntidade(dadosPropriosDesteObjeto);
+    	List<String> campos = Utils.obtenhaCampos(dadosPropriosDesteObjeto);
+    	List<String> agregacoes = RegexUtils.extraiaAgregacoes(dadosDoObjeto);
 
         this.id = Utils.convertaParaInt(campos.get(0));
         this.nome = campos.get(1);
         this.razaoSocial = campos.get(2);
-        this.dataNascimento = LocalDate.parse(campos.get(3));
-        this.cpf = campos.get(4);
-        this.cnpj = campos.get(5);
+        this.nomeFantasia = campos.get(3);
+        this.dataNascimento = DataUtils.convertaStringParaLocalDate(campos.get(4));
+        this.cpf = campos.get(5);
+        this.cnpj = campos.get(6);
         Endereco endereco = (Endereco) PersisteDadosFactory.obtenhaInstancia("Endereco");
-        String dadosEndereco = campos.get(6) + ";" + campos.get(7) + ";" +campos.get(8) + ";" +campos.get(9) + ";" + campos.get(10);
-        endereco.monteObjeto(dadosEndereco);
+        endereco.monteObjeto(agregacoes.get(0));
         this.endereco = endereco;
         Telefone telefonePrincipal = (Telefone) PersisteDadosFactory.obtenhaInstancia("Telefone");
-        String dadosTelefonePrincipal = campos.get(11) + ";" + campos.get(12);
-        telefonePrincipal.monteObjeto(dadosTelefonePrincipal);
+        telefonePrincipal.monteObjeto(agregacoes.get(1));
         this.telefonePrincipal = telefonePrincipal;
         Telefone telefoneAlternativo = (Telefone) PersisteDadosFactory.obtenhaInstancia("Telefone");
-        String dadosTelefoneAlternativo = campos.get(13) + ";" + campos.get(14);
-        telefoneAlternativo.monteObjeto(dadosTelefoneAlternativo);
+        telefoneAlternativo.monteObjeto(agregacoes.get(2));
         this.telefoneAlternativo = telefoneAlternativo;
-        this.email = campos.get(15);
+        this.email = campos.get(7);
     }
 
     @Override
-    public String desmonteObjeto(boolean comParametro) {
-        StringBuilder dadosSeparadosPorPontoVirgula = new StringBuilder();
+    public String desmonteObjeto() {
+		StringBuilder atributos = new StringBuilder();
 
-        if(comParametro) {
-            dadosSeparadosPorPontoVirgula.append(obtenhaParametros());
-        }
+		String nomeEntidade = RegexUtils.separeComoCampo(this.getClass().getSimpleName());
+		String campoId = RegexUtils.separeComoCampo(this.getIdComoString());
+		atributos.append(nomeEntidade);
+		atributos.append(campoId);
 
-        dadosSeparadosPorPontoVirgula.append(this.id).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.nome).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.razaoSocial).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.dataNascimento.toString()).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.cpf).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.cnpj).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.endereco.desmonteObjeto(false)).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.telefonePrincipal.desmonteObjeto(false)).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.telefoneAlternativo.desmonteObjeto(false)).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.email);
-
-
-        return dadosSeparadosPorPontoVirgula.toString();
+		if(this.id == 0) {
+			String campoNome = RegexUtils.separeComoCampo(this.nome);
+			String campoRazaoSocial = RegexUtils.separeComoCampo(this.razaoSocial);
+			String campoNomeFantasia = RegexUtils.separeComoCampo(this.nomeFantasia);
+			String campoDataNascimento = RegexUtils.separeComoCampo(DataUtils.convertaLocalDateParaStringFormatada(this.dataNascimento));
+			String campoCpf = RegexUtils.separeComoCampo(this.cpf);
+			String campoCnpj = RegexUtils.separeComoCampo(this.cnpj);
+			String campoEnderecoAgregacao = this.endereco.getId() == 0 ? RegexUtils.separeComoAgregacao(endereco.desmonteObjeto()) : RegexUtils.separeComoAgregacao(endereco.getIdComoString());
+			String campoTelefonePrincipal = this.telefonePrincipal.getId() == 0 ? RegexUtils.separeComoAgregacao(telefonePrincipal.desmonteObjeto()) : RegexUtils.separeComoAgregacao(telefonePrincipal.getIdComoString());
+			String campoTelefoneAlternativo = this.telefoneAlternativo.getId() == 0 ? RegexUtils.separeComoAgregacao(telefoneAlternativo.desmonteObjeto()) : RegexUtils.separeComoAgregacao(telefoneAlternativo.getIdComoString());
+			String campoEmail = RegexUtils.separeComoCampo(this.email);
+			atributos.append(campoNome);
+			atributos.append(campoRazaoSocial);
+			atributos.append(campoNomeFantasia);
+			atributos.append(campoDataNascimento);
+			atributos.append(campoCpf);
+			atributos.append(campoCnpj);
+			atributos.append(campoEnderecoAgregacao);
+			atributos.append(campoTelefonePrincipal);
+			atributos.append(campoTelefoneAlternativo);
+			atributos.append(campoEmail);
+		}
+		return atributos.toString();
     }
     
 }

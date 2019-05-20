@@ -1,20 +1,20 @@
 package br.com.senaigo.locadora.controller;
 
+import br.com.senaigo.locadora.model.Mensagem;
 import br.com.senaigo.locadora.model.PersisteDadosFactory;
 import br.com.senaigo.locadora.interfaces.PersisteDados;
 import br.com.senaigo.locadora.persistencia.Operacao;
 import br.com.senaigo.locadora.persistencia.Repositorio;
+import br.com.senaigo.locadora.utils.RegexUtils;
 import br.com.senaigo.locadora.utils.Utils;
 
 import java.io.IOException;
-import java.util.List;
 
 public class ServerTcpController {
 
-	public String atendaRequisicao(String requisicao) throws Exception {
-		List<String> parametros = Utils.obtenhaParametros(requisicao);
-		int codigoOperacao = Utils.convertaParaInt(parametros.get(0));
-		Operacao operacao = Operacao.valueOf(codigoOperacao);
+	public String atendaRequisicao(String mensagem) throws Exception {
+		Mensagem parametros = new Mensagem(mensagem);
+		Operacao operacao = Operacao.valueOf(parametros.getOperacao());
 		String resposta = "";
 
 		if (parametros == null) {
@@ -44,26 +44,32 @@ public class ServerTcpController {
 		return resposta;
 	}
 
-	private String incluir(List<String> parametros) throws IOException {
-		String nomeEntidade = parametros.get(1);
+	private String incluir(Mensagem mensagem) throws IOException {
+		String nomeEntidade = mensagem.getNomeEntidade();
 		Repositorio repositorio = new Repositorio(nomeEntidade);
+		String dadosObjeto = mensagem.getDadosObjetoPrincipal();
 		PersisteDados objeto = PersisteDadosFactory.obtenhaInstancia(nomeEntidade);
-		objeto.monteObjeto(parametros.get(2));
+		//Os dados não podem passar daqui sem tratamento
+		int id = RegexUtils.extraiaId(dadosObjeto);
+		if(id != 0) {
+			String dadosEncontrados = repositorio.busquePorId(nomeEntidade, id);
+			dadosObjeto = dadosEncontrados;
+		}
+
+		objeto.monteObjeto(dadosObjeto);
 		repositorio.incluir(objeto);
 		return nomeEntidade + " incluído com sucesso.";
-
 	}
 
-	private String listar(List<String> parametros) throws IOException {
-		StringBuilder listaEmTexto = new StringBuilder();
-		String nomeEntidade = parametros.get(1);
+	private String listar(Mensagem mensagem) throws IOException {
+		String nomeEntidade = mensagem.getNomeEntidade();
 		Repositorio repositorio = new Repositorio(nomeEntidade);
 		return repositorio.listar();
 	}
 
-	private String alterar(List<String> parametros) throws IOException {
-		String nomeEntidade = parametros.get(1);
-		String campoAlterado = parametros.get(2);
+	private String alterar(Mensagem mensagem) throws IOException {
+		String nomeEntidade = mensagem.getNomeEntidade();
+		String campoAlterado = mensagem.getDadosObjetoPrincipal();
 		String id = Utils.obtenhaCampos(campoAlterado).get(0);
 		String regex = "(?<!.)" + id + ";.*";
 		Repositorio repositorio = new Repositorio(nomeEntidade);
@@ -73,9 +79,9 @@ public class ServerTcpController {
 		return "Dados Alterados com sucesso!";
 	}
 
-	private String excluir(List<String> parametros) throws IOException {
-		String nomeEntidade = parametros.get(1);
-		String campoExcluir = parametros.get(2);
+	private String excluir(Mensagem mensagem) throws IOException {
+		String nomeEntidade = mensagem.getNomeEntidade();
+		String campoExcluir = mensagem.getDadosObjetoPrincipal();
 		Repositorio repositorio = new Repositorio(nomeEntidade);
 		String dadosAtuais = repositorio.listar();
 		String dadosNovos = dadosAtuais.replaceFirst(campoExcluir + "\n", "");

@@ -1,6 +1,7 @@
 package br.com.senaigo.locadora.model;
 
 import br.com.senaigo.locadora.interfaces.PersisteDados;
+import br.com.senaigo.locadora.utils.RegexUtils;
 import br.com.senaigo.locadora.utils.Utils;
 
 import java.util.List;
@@ -30,24 +31,30 @@ public class Marca extends PersisteDados {
     //Métodos Herdados
     @Override
     public void monteObjeto(String dadosDoObjeto) {
-        List<String> campos = Utils.obtenhaCampos(dadosDoObjeto);
+		String dadosPropriosDesteObjeto = RegexUtils.removaAgregacoes(dadosDoObjeto);
+		dadosPropriosDesteObjeto = RegexUtils.removaNomeEntidade(dadosPropriosDesteObjeto);
+		List<String> campos = Utils.obtenhaCampos(dadosPropriosDesteObjeto);
 
         this.id = Utils.convertaParaInt(campos.get(0));
         this.nome = campos.get(1);
     }
 
     @Override
-    public String desmonteObjeto(boolean comParametro) {
-        StringBuilder dadosSeparadosPorPontoVirgula = new StringBuilder();
+    public String desmonteObjeto() {
+        StringBuilder atributos = new StringBuilder();
 
-        if(comParametro) {
-            dadosSeparadosPorPontoVirgula.append(obtenhaParametros());
-        }
+        String nomeEntidade = RegexUtils.separeComoCampo(this.getClass().getSimpleName());
+        String campoId = RegexUtils.separeComoCampo(this.getIdComoString());
 
-        dadosSeparadosPorPontoVirgula.append(this.id).append(";");
-        dadosSeparadosPorPontoVirgula.append(this.nome);
+		atributos.append(nomeEntidade);
+		atributos.append(campoId);
 
-        return dadosSeparadosPorPontoVirgula.toString();
+        if(this.getId() == 0) {
+			String campoNome = RegexUtils.separeComoCampo(this.nome);
+			atributos.append(campoNome);
+		}
+
+        return atributos.toString();
     }
 
 }

@@ -4,6 +4,7 @@ import br.com.senaigo.locadora.comunicacao.ClienteTcp;
 import br.com.senaigo.locadora.model.PersisteDadosFactory;
 import br.com.senaigo.locadora.interfaces.PersisteDados;
 import br.com.senaigo.locadora.persistencia.Operacao;
+import br.com.senaigo.locadora.utils.RegexUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class ClienteTcpController {
 	public String execute(Object objeto, Operacao operacao) throws IOException {
 		try {
 			PersisteDados dados = (PersisteDados) objeto;
-			String mensagem = operacao.getValor() + "|" + dados.desmonteObjeto(true);
+			String mensagem = RegexUtils.separeComoOperacao(operacao) + dados.desmonteObjeto();
 			System.out.println("Enviando requisição: " + mensagem);
 			conexaoComCliente.enviarMensagem(mensagem);
 			String resposta = conexaoComCliente.receberMensagem();
@@ -34,7 +35,7 @@ public class ClienteTcpController {
 	public String execute(String nomeEntidade, Operacao operacao) throws IOException {
 		//TODO buscar solução melhor que passar String
 		try {
-			String mensagem = operacao.getValor() + "|" + nomeEntidade;
+			String mensagem = RegexUtils.separeComoOperacao(operacao) + nomeEntidade;
 			System.out.println("Enviando requisição: " + mensagem);
 			conexaoComCliente.enviarMensagem(mensagem);
 			String resposta = conexaoComCliente.receberMensagem();
@@ -44,6 +45,7 @@ public class ClienteTcpController {
 		}
 	}
 
+	//TODO rever o retorno do método, para object.
 	public List<? extends PersisteDados> liste(String nomeEntidade) throws IOException {
 		String dados = execute(nomeEntidade, Operacao.LISTAR);
 		List<String> dadosObjetos = Arrays.asList(dados.split("\n"));
